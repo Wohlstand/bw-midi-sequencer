@@ -1,13 +1,13 @@
-// クラスの名前を変更してABIの衝突を回避する
+// Rename the definition of the MIDI sequencer to avoid ABI collision while using multiple similar modules
 #define BW_MidiSequencer FluidMidiSequencer
-// MIDIシーケンサークラスの実装を含める
+// MIDI sequnecer implementation
 #include "midi_sequencer_impl.hpp"
 
 #include "fluid_seq.h"
 
-/****************************************************
- *           リアルタイムMIDI呼び出しプロキシ            *
- ****************************************************/
+/***************************************************************************
+ *  Callbacks to wrap FluidSynth's real-time API to the BW MIDI Sequencer  *
+ ***************************************************************************/
 
 FluidMidiSeq &getModule(void *userdata)
 {
@@ -72,13 +72,13 @@ static void rtSysEx(void *userdata, const uint8_t *msg, size_t size)
 static void rtDeviceSwitch(void *userdata, size_t track, const char *data, size_t length)
 {
     (void)userdata; (void)track; (void)data; (void)length;
-    // サポートされていません
+    // FluidSynth doesn't implements this
 }
 
 static size_t rtCurrentDevice(void *userdata, size_t track)
 {
     (void)userdata; (void)track;
-    // サポートされていません
+    // FluidSynth doesn't implements this
     return 0;
 }
 /* NonStandard calls End */
@@ -101,7 +101,7 @@ void FluidMidiSeq::initSequencerInterface()
     m_sequencerInterface = seq;
     std::memset(seq, 0, sizeof(BW_MidiRtInterface));
 
-    /* MIDIリアルタイムコール */
+    /* Real-time MIDI API */
     seq->rtUserData = this;
     seq->rt_noteOn  = rtNoteOn;
     seq->rt_noteOff = rtNoteOff;
@@ -118,11 +118,12 @@ void FluidMidiSeq::initSequencerInterface()
     seq->pcmSampleRate = m_rate;
     seq->pcmFrameSize = 2 /*channels*/ * 2 /*size of one sample*/;
 
-    /* 非標準コール */
+    /* Non-standard features */
     seq->rt_deviceSwitch = rtDeviceSwitch;
     seq->rt_currentDevice = rtCurrentDevice;
 
     m_sequencer->setInterface(seq);
+    // While playing HMI or EMIDI files, set the device filter
     m_sequencer->setDeviceMask(BW_MidiSequencer::Device_GeneralMidi|BW_MidiSequencer::Device_SoundMasterII|BW_MidiSequencer::Device_GravisUltrasound);
 }
 
