@@ -63,6 +63,7 @@ public:
     ~FluidMidiSeq();
 
     bool isFloat32() const;
+    uint32_t sampleRate() const;
 
     /**
      * @brief Get the initialised context of the FluidSynth instance

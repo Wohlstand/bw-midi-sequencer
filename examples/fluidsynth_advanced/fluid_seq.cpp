@@ -154,7 +154,7 @@ void FluidMidiSeq::initSequencerInterface()
     seq->pcmFrameSize = 2 /*channels*/ * (m_float32 ? 4 : 2) /*size of one sample*/;
     fluid_settings_setnum(m_settings, "synth.sample-rate", (double)seq->pcmSampleRate);
     fluid_settings_getnum(m_settings, "synth.sample-rate", &samplerate);
-    seq->pcmSampleRate = (int)samplerate; // De-facto
+    m_rate = seq->pcmSampleRate = (int)samplerate; // De-facto
 
     /* Non-standard features */
     seq->rt_deviceSwitch = rtDeviceSwitch;
@@ -211,6 +211,11 @@ FluidMidiSeq::~FluidMidiSeq()
 bool FluidMidiSeq::isFloat32() const
 {
     return m_float32;
+}
+
+uint32_t FluidMidiSeq::sampleRate() const
+{
+    return m_rate;
 }
 
 fluid_synth_t *FluidMidiSeq::getSynth()

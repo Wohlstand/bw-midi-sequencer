@@ -70,8 +70,8 @@ int main(int argc, char **argv)
     signal(SIGTERM, &sig_playing);
 
     memset(&spec, 0, sizeof(SDL_AudioSpec));
-    spec.freq = 44100;
-    spec.format = AUDIO_F32SYS;
+    spec.freq = m.sampleRate();
+    spec.format = m.isFloat32() ? AUDIO_F32SYS : AUDIO_S16SYS;
     spec.channels = 2;
     spec.samples = buffer_size;
 
